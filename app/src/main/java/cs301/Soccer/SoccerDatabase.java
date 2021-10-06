@@ -8,14 +8,14 @@ import java.util.*;
 /**
  * Soccer player database -- presently, all dummied up
  *
- * @author *** put your name here ***
+ * @author Kamalii Silva
  * @version *** put date of completion here ***
  *
  */
 public class SoccerDatabase implements SoccerDB {
 
     // dummied up variable; you will need to change this
-    private Hashtable database;
+    private Hashtable<String, SoccerPlayer> database = new Hashtable<>();
 
     /**
      * add a player
@@ -25,6 +25,14 @@ public class SoccerDatabase implements SoccerDB {
     @Override
     public boolean addPlayer(String firstName, String lastName,
                              int uniformNumber, String teamName) {
+        String key = firstName + "_" + lastName;
+        Log.i("Player to Add", key);
+        if (!(database.containsKey(key))) {
+            SoccerPlayer newPlayer = new SoccerPlayer(firstName, lastName,
+                    uniformNumber, teamName);
+            database.put(key, newPlayer);
+            return true;
+        }
         return false;
     }
 
@@ -35,6 +43,11 @@ public class SoccerDatabase implements SoccerDB {
      */
     @Override
     public boolean removePlayer(String firstName, String lastName) {
+        String key = firstName + "_" + lastName;
+        if(database.containsKey(key)){
+            database.remove(key);
+            return true;
+        }
         return false;
     }
 
@@ -45,7 +58,8 @@ public class SoccerDatabase implements SoccerDB {
      */
     @Override
     public SoccerPlayer getPlayer(String firstName, String lastName) {
-        return null;
+        String key = firstName + "_" + lastName;
+        return database.get(key);
     }
 
     /**
@@ -55,6 +69,12 @@ public class SoccerDatabase implements SoccerDB {
      */
     @Override
     public boolean bumpGoals(String firstName, String lastName) {
+        String key = firstName + "_" + lastName;
+        if (database.containsKey(key)){
+            SoccerPlayer toChange = database.get(key);
+            toChange.bumpGoals();
+            return true;
+        }
         return false;
     }
 
@@ -65,6 +85,12 @@ public class SoccerDatabase implements SoccerDB {
      */
     @Override
     public boolean bumpYellowCards(String firstName, String lastName) {
+        String key = firstName + "_" + lastName;
+        if (database.containsKey(key)){
+            SoccerPlayer toChange = database.get(key);
+            toChange.bumpYellowCards();
+            return true;
+        }
         return false;
     }
 
@@ -75,6 +101,12 @@ public class SoccerDatabase implements SoccerDB {
      */
     @Override
     public boolean bumpRedCards(String firstName, String lastName) {
+        String key = firstName + "_" + lastName;
+        if (database.containsKey(key)){
+            SoccerPlayer toChange = database.get(key);
+            toChange.bumpRedCards();
+            return true;
+        }
         return false;
     }
 
@@ -86,7 +118,22 @@ public class SoccerDatabase implements SoccerDB {
     @Override
     // report number of players on a given team (or all players, if null)
     public int numPlayers(String teamName) {
-        return -1;
+        int count = 0;
+        Enumeration<String> k = database.keys();
+        if (teamName == null){
+            count = database.size();
+        }
+        else {
+            while (k.hasMoreElements()){
+                String key = k.nextElement();
+                SoccerPlayer curr = database.get(key);
+                Log.i("Player: " + k, "Team: " + curr.getTeamName());
+                if (curr.getTeamName().equals(teamName)){
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     /**
@@ -97,8 +144,32 @@ public class SoccerDatabase implements SoccerDB {
     // get the nTH player
     @Override
     public SoccerPlayer playerIndex(int idx, String teamName) {
+        int count = numPlayers(teamName);
+        int run = -1;
+        if(idx > count || idx < 0){
+            return null;
+        }
+        Enumeration<String> k = database.keys();
+        String key = null;
+        while (k.hasMoreElements()) {
+            key = k.nextElement();
+            SoccerPlayer curr = database.get(key);
+            if (teamName.equals(null)) {
+                run++;
+            }
+            else {
+                if (teamName.equals(curr.getTeamName())) {
+                    run++;
+                }
+            }
+            if(idx == run){
+                return curr;
+            }
+        }
         return null;
     }
+
+
 
     /**
      * reads database data from a file
